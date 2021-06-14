@@ -38,7 +38,7 @@ nav {
 }
 
 .login_input {
-    border : none;
+    border: none;
     padding: 0.5rem 2 rem;
     font-size: 1.6rem;
     font-family: inherit;
@@ -77,9 +77,10 @@ nav {
     grid-template-columns: 4fr 3fr;
     grid-template-rows: auto repeat(3, 15rem) auto;
     gap: 2rem;
+    display: grid;
 
     /* fade animation */
-    opacity: 0;
+    /* opacity: 0; */
     transition: all 1s;
 }
 
@@ -139,7 +140,7 @@ nav {
 }
 
 .movements_type--withdrawal {
-    background-image: linear-gradient(to top left, #e52a5a, #ff585f);
+    background-image: linear-gradient(to top left, #e52a5a, #ff585f) !important;
 }
 
 .movements_value {
@@ -219,7 +220,8 @@ h2 {
     gap: 0.4rem 1rem;
 }
 
-/* Exception  for interest*/]
+/* Exception  for interest*/
+]
 .form.form--loan {
     grid-template-columns: 2.5fr 1fr 2.5fr;
 }

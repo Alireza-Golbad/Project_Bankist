@@ -38,7 +38,9 @@
             <div class="balance">
                 <div>
                     <p class="balance_label">Current balance</p>
-                    <p class="balance_date">As of <span class="date">05/03/2037</span></p>
+                    <p class="balance_date">
+                        As of <span class="date">05/03/2037</span>
+                    </p>
                 </div>
                 <p class="balance_value">0000€</p>
             </div>
@@ -46,12 +48,14 @@
             <!-- Movements -->
             <div class="movements">
                 <div class="movements_row">
-                    <div class="movements_type movemnets_type--deposit">2 deposit</div>
+                    <div class="movements_type movements_type--deposit">
+                        2 deposit
+                    </div>
                     <div class="movements_date">3 days ago</div>
                     <div class="movements_value">4 000€</div>
                 </div>
                 <div class="movements_row">
-                    <div class="movements_type movemnets_type--withdrawal">
+                    <div class="movements_type movements_type--withdrawal">
                         1 withdrawal
                     </div>
                     <div class="movements_date">24/01/2037</div>
@@ -74,8 +78,11 @@
             <div class="operation operation--transfer">
                 <h2>Tronsfer money</h2>
                 <form class="form form--transfer">
-                    <input type="text" class="form_input form_input--to">
-                    <input type="number" class="form_input form_input--amount">
+                    <input type="text" class="form_input form_input--to" />
+                    <input
+                        type="number"
+                        class="form_input form_input--amount"
+                    />
                     <button class="form_btn form_btn--transfer">&rarr;</button>
                     <label for="" class="form_label">Transfer to</label>
                     <label for="" class="form_label">Amount</label>
@@ -86,9 +93,14 @@
             <div class="operation operation--loan">
                 <h2>Request loan</h2>
                 <form class="form form--loan">
-                    <input type="number" class="form_input form_input--loan-amount">
+                    <input
+                        type="number"
+                        class="form_input form_input--loan-amount"
+                    />
                     <button class="form_btn form_btn--loan">&rarr;</button>
-                    <label for="" class="form_label form_label--loan">Amount</label>
+                    <label for="" class="form_label form_label--loan"
+                        >Amount</label
+                    >
                 </form>
             </div>
 
@@ -96,8 +108,8 @@
             <div class="operation operation--close">
                 <h2>Close account</h2>
                 <form class="form form--close">
-                    <input type="text" class="form_input form_input--to">
-                    <input type="number" class="form_input form_input--user">
+                    <input type="text" class="form_input form_input--to" />
+                    <input type="number" class="form_input form_input--user" />
                     <button class="form_btn form_btn--close">&rarr;</button>
                     <label for="" class="form_label">Confirm user</label>
                     <label for="" class="form_label">Confirm PIN</label>
