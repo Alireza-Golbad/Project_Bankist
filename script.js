@@ -77,6 +77,32 @@ const displayMovements = function (movements) {
 
 displayMovements(account1.movements);
 
+const calcDisplayBalance = function (movements) {
+    const balance = movements.reduce((acc, mov) => acc + mov, 0);
+    labelBalance.textContent = `${balance} EUR`;
+};
+calcDisplayBalance(account1.movements);
+
+const calcDisplaySummary = function (movements) {
+    const income = movements
+        .filter((mov) => mov > 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumIn.textContent = `${income}€`;
+
+    const outcome = movements
+        .filter((mov) => mov < 0)
+        .reduce((acc, mov) => acc + Math.abs(mov), 0);
+    labelSumOut.textContent = `${outcome}€`;
+
+    const interest = movements
+        .filter((mov) => mov > 0)
+        .map((deposit) => (deposit * 1.2) / 100)
+        .filter((int) => int >= 1)
+        .reduce((acc, int) => acc + int, 0);
+    labelSumInterest.textContent = `${interest}€`;
+};
+calcDisplaySummary(account1.movements);
+
 const createUsername = function (accs) {
     accs.forEach(function (acc) {
         acc.username = acc.owner
@@ -88,7 +114,8 @@ const createUsername = function (accs) {
 };
 
 createUsername(accounts);
-console.log(accounts);
+// console.log(accounts);
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -106,12 +133,48 @@ const deposits = movements.filter(function (mov) {
     return mov > 0;
 });
 
-console.log(movements);
-console.log(deposits);
+// console.log(movements);
+// console.log(deposits);
 
 const depositsFor = [];
 for (const mov of movements) if (mov > 0) depositsFor.push(mov);
-console.log(depositsFor);
+// console.log(depositsFor);
 
 const withdrawals = movements.filter((mov) => mov < 0);
-console.log(withdrawals);
+// console.log(withdrawals);
+
+// accumolator --> SNOWBALL
+// const balance = movements.reduce(function (acc, cur, i, arr) {
+//     console.log(`Iteration ${i} : ${acc}`);
+//     return acc + cur;
+// }, 0);
+
+const balance = movements.reduce((acc, cur) => acc + cur, 0);
+// console.log(balance);
+
+let balance2 = 0;
+for (const mov of movements) balance2 += mov;
+// console.log(balance2);
+
+// Maximum number
+const max = movements.reduce((acc, mov) => {
+    if (acc > mov) return acc;
+    else return mov;
+}, movements[0]);
+// console.log(max);
+
+const eurToUsd = 1.1;
+const totalDepositsUSD = movements
+    .filter((mov) => mov > 0)
+    .map((mov) => mov * eurToUsd)
+    .reduce((acc, mov) => acc + mov, 0);
+// console.log(totalDepositsUSD);
+
+// Find method ############################################
+const firstWithdrawal = movements.find((mov) => mov < 0);
+console.log(movements);
+console.log(firstWithdrawal);
+
+console.log(accounts);
+const account = accounts.find((acc) => acc.owner == "Jessica Davis");
+console.log(account);
