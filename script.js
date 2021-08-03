@@ -95,7 +95,7 @@ const account5 = {
         "2021-07-30T21:29:13.969Z",
         "2021-08-01T11:33:44.890Z",
     ],
-    currency: "EUR",
+    currency: "USD",
     locale: "fa-IR", // de-DE
 };
 
@@ -145,6 +145,13 @@ const formatMovementDate = function (date, locale) {
     return new Intl.DateTimeFormat(locale).format(date);
 };
 
+const formatCur = function (value, locale, currency) {
+    return Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: currency,
+    }).format(value);
+};
+
 const displayMovements = function (acc, sort = false) {
     containerMovements.innerHTML = "";
     const movs = sort
@@ -157,13 +164,15 @@ const displayMovements = function (acc, sort = false) {
         const date = new Date(acc.movementsDates[i]);
         const displayDate = formatMovementDate(date, acc.locale);
 
+        const formatedMov = formatCur(mov, acc.locale, acc.currency);
+
         const html = `
             <div class="movements_row">
                 <div class="movements_type movements_type--${type}">${
             i + 1
         } ${type}</div>
                 <div class="movements_date">${displayDate}</div>
-                <div class="movements_value">${mov}</div>
+                <div class="movements_value">${formatedMov}</div>
             </div>
         `;
 
@@ -173,26 +182,30 @@ const displayMovements = function (acc, sort = false) {
 
 const calcDisplayBalance = function (acc) {
     acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
-    labelBalance.textContent = `${acc.balance} €`;
+    labelBalance.textContent = formatCur(acc.balance, acc.locale, acc.currency);
 };
 
 const calcDisplaySummary = function (acc) {
     const income = acc.movements
         .filter((mov) => mov > 0)
         .reduce((acc, mov) => acc + mov, 0);
-    labelSumIn.textContent = `${income}€`;
+    labelSumIn.textContent = formatCur(income, acc.locale, acc.currency);
 
-    const outcome = acc.movements
+    const out = acc.movements
         .filter((mov) => mov < 0)
         .reduce((acc, mov) => acc + Math.abs(mov), 0);
-    labelSumOut.textContent = `${outcome}€`;
+    labelSumOut.textContent = formatCur(out, acc.locale, acc.currency);
 
     const interest = acc.movements
         .filter((mov) => mov > 0)
         .map((deposit) => (deposit * acc.interestRate) / 100)
         .filter((int) => int >= 1)
         .reduce((acc, int) => acc + int, 0);
-    labelSumInterest.textContent = `${interest}€`;
+    labelSumInterest.textContent = formatCur(
+        interest,
+        acc.locale,
+        acc.currency
+    );
 };
 
 const createUsername = function (accs) {
@@ -219,13 +232,37 @@ const updateUI = function (acc) {
 };
 // console.log(accounts);
 
+const startLogOutTimer = function () {
+    const tick = function () {
+        const min = String(Math.trunc(time / 60)).padStart(2, 0);
+        const sec = String(time % 60).padStart(2, 0);
+        // in each call print the remaining time to UI
+        labelTimer.textContent = `${min}:${sec}`;
+
+        // when 0 second, stop timer and log out user
+        if (time === 0) {
+            clearInterval(timer);
+            labelWelcome.textContent = `Log in to get started`;
+            containerApp.style.opacity = 0;
+        }
+        // decrease 1 second
+        time--;
+    };
+    // set time to 5 minutes
+    let time = 27;
+    // call the timer every second
+    tick();
+    const timer = setInterval(tick, 1000);
+    return timer;
+};
+
 // Event handler *******************************************
-let currentAccount;
+let currentAccount, timer;
 
 // Fake always logged in
-currentAccount = account5;
-updateUI(currentAccount);
-containerApp.style.opacity = 100;
+// currentAccount = account5;
+// updateUI(currentAccount);
+// containerApp.style.opacity = 100;
 
 btnLogin.addEventListener("click", function (e) {
     //Prevent from form submitting
@@ -269,6 +306,8 @@ btnLogin.addEventListener("click", function (e) {
         // Clear input feilds
         inputLoginUsername.value = inputLoginPin.value = "";
         inputLoginPin.blur();
+        if (timer) clearInterval(timer);
+        timer = startLogOutTimer();
 
         updateUI(currentAccount);
     }
@@ -297,6 +336,10 @@ btnTransfer.addEventListener("click", function (e) {
 
         // Update UI
         updateUI(currentAccount);
+
+        // Reset timer
+        clearInterval(timer);
+        timer = startLogOutTimer();
     }
 });
 
@@ -307,14 +350,20 @@ btnLoan.addEventListener("click", function (e) {
         amount > 0 &&
         currentAccount.movements.some((mov) => mov >= amount * 0.1)
     ) {
-        // Add movement
-        currentAccount.movements.push(amount);
+        setTimeout(function () {
+            // Add movement
+            currentAccount.movements.push(amount);
 
-        // Add loan date
-        currentAccount.movementsDates.push(new Date().toISOString());
+            // Add loan date
+            currentAccount.movementsDates.push(new Date().toISOString());
 
-        // Update UI
-        updateUI(currentAccount);
+            // Update UI
+            updateUI(currentAccount);
+
+            // Reset timer
+            clearInterval(timer);
+            timer = startLogOutTimer();
+        }, 3333);
     }
     inputLoanAmount.value = "";
 });
@@ -344,140 +393,3 @@ btnSort.addEventListener("click", function (e) {
     displayMovements(currentAccount.movements, !sorted);
     sorted = !sorted;
 });
-/////////////////////////////////////////////////******************************************************** */
-/////////////////////////////////////////////////#######################################################
-// LECTURES
-
-const currencies = new Map([
-    ["USD", "United States dollar"],
-    ["EUR", "Euro"],
-    ["GBP", "Pound sterling"],
-]);
-
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
-
-// =================================================================
-const deposits = movements.filter(function (mov) {
-    return mov > 0;
-});
-
-// console.log(movements);
-// console.log(deposits);
-
-const depositsFor = [];
-for (const mov of movements) if (mov > 0) depositsFor.push(mov);
-// console.log(depositsFor);
-
-const withdrawals = movements.filter((mov) => mov < 0);
-// console.log(withdrawals);
-
-// accumolator --> SNOWBALL
-// const balance = movements.reduce(function (acc, cur, i, arr) {
-//     console.log(`Iteration ${i} : ${acc}`);
-//     return acc + cur;
-// }, 0);
-
-const balance = movements.reduce((acc, cur) => acc + cur, 0);
-// console.log(balance);
-
-let balance2 = 0;
-for (const mov of movements) balance2 += mov;
-// console.log(balance2);
-
-// Maximum number
-const max = movements.reduce((acc, mov) => {
-    if (acc > mov) return acc;
-    else return mov;
-}, movements[0]);
-// console.log(max);
-
-const eurToUsd = 1.1;
-const totalDepositsUSD = movements
-    .filter((mov) => mov > 0)
-    .map((mov) => mov * eurToUsd)
-    .reduce((acc, mov) => acc + mov, 0);
-// console.log(totalDepositsUSD);
-
-// Find method ############################################
-const firstWithdrawal = movements.find((mov) => mov < 0);
-// console.log(movements);
-// console.log(firstWithdrawal);
-
-// console.log(accounts);
-const account = accounts.find((acc) => acc.owner == "Jessica Davis");
-// console.log(account);
-
-// some and every
-//some
-const anyDeposit = movements.some((mov) => mov > 333);
-anyDeposit; //=> true
-
-// EVERY
-movements.every((mov) => mov > 0); // false
-account4.movements.every((mov) => mov > 0); // true
-
-// Seperate call back
-const deposit = (mov) => mov > 0;
-movements.some(deposit); // true
-movements.every(deposit); // false
-movements.filter(deposit); //[200, 450, 3000, 70, 1300]
-
-// Flat and flatMap
-const arr = [[1, 2, 3], [4, 5, 6], 7, 8];
-// console.log(arr.flat());
-
-const arrDeep = [[1, [2, 3]], [[4, 5], 6], 7, 8];
-// console.log(arrDeep.flat(2));
-
-// flat
-const overalBalance = accounts
-    .map((acc) => acc.movements)
-    .flat()
-    .reduce((acc, mov) => acc + mov, 0);
-// console.log(overalBalance);
-
-// flatMap
-const overalBalance2 = accounts
-    .flatMap((acc) => acc.movements)
-    .reduce((acc, mov) => acc + mov, 0);
-// console.log(overalBalance2);
-
-// Sorting
-// String
-const owners = ["Alireza", "Davood", "Leila", "Faranak", "Zahara", "Behnam"];
-// console.log(owners.sort()); => ["Alireza", "Behnam", "Davood", "Faranak", "Leila", "Zahara"]
-// console.log(owners); => ["Alireza", "Behnam", "Davood", "Faranak", "Leila", "Zahara"]
-
-// Numbers
-movements; //[200, 450, -400, 3000, -650, -130, 70, 1300]
-
-// return < 0 , A, B (keep order)
-// return > 0 , B, A (switch order)
-
-// Ascending
-// movements.sort((a, b) => {
-//     if (a > b) return 1;
-//     if (a < b) return -1;
-// });
-movements.sort((a, b) => a - b);
-movements; // [-650, -400, -130, 70, 200, 450, 1300, 3000]
-
-// Descending
-// movements.sort((a, b) => {
-//     if (a > b) return -1;
-//     if (a < b) return 1;
-// });
-movements.sort((a, b) => b - a);
-movements; // [3000, 1300, 450, 200, 70, -130, -400, -650]
-
-// Filling Arrays
-// const arr = [1, 2, 3, 4, 5, 6, 7];
-const arr2 = new Array(1, 2, 3, 4, 5, 6, 7);
-
-// Empty Arrays + fill method
-const x = new Array(7); // it's an empty Array and it's length is 7
-x.fill(1, 3, 5); // [empty*3, 1,1,empty*2]
-x.fill(1); // [1 , 1, 1, 1, 1, 1, 1]
-
-const y = Array.from({ length: 7 }, () => 1); // [1, 1, 1, 1, 1, 1, 1]
-const z = Array.from({ length: 7 }, (_, i) => i + 1); // [1, 2, 3, 4, 5, 6, 7]
